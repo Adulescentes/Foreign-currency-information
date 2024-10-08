@@ -51,20 +51,20 @@ def get_info(currency, number_of_days):
         })
 
     df = df[::-1]
-    # İlk verinin yerini bul
+    # Find the first data
     for i in range(len(df)):
         if df[i]["forexBuy"] is not None:
             first_item_index = i
             break
     df = df[first_item_index:]
 
-    # Şimdi boşlukları doldur
+    # Now fill in the blanks
     for i, item in enumerate(df):
         if item["forexBuy"] is not None:
             last_item = item.copy()
-            del last_item["Tarih"]
+            del last_item["Date"]
         else:
-            new_item = {"Tarih": item["Tarih"]}
+            new_item = {"Date": item["Date"]}
             new_item.update(last_item)
             df[i] = new_item
 
@@ -74,10 +74,17 @@ def get_info(currency, number_of_days):
 
 parser = argparse.ArgumentParser(description="Get currency values from Turkish National Bank")
 parser.add_argument("--cur", type=str, required=True, help="Name of the currency")
+parser.add_argument("--days", type=int, required=False, help="Number of days of the past data")
 parser.add_argument("--graph", type=str, required=False, help="Visualize graph")
 
+
 args = parser.parse_args()
-info = get_info(currency=args.cur.upper(), number_of_days=7)
+if args.days:
+    days = args.days
+else:
+    days = 7
+
+info = get_info(currency=args.cur.upper(), number_of_days=days)
 
 print(info)
 
